@@ -1,3 +1,1 @@
-#TesteThi
-#Testepe
-#Mudança pro Pedro vê
+print('teste')
