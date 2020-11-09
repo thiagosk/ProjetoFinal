@@ -15,7 +15,7 @@ pygame.display.set_caption('Space Frogerson')
 
 nave_largura = 50
 nave_altura = 38
-nave_img = pygame.image.load('referencia/referencia/assets/img/playerShip1_orange.png').convert_alpha()
+nave_img = pygame.image.load('assets/img/playerShip1_orange.png').convert_alpha()
 nave_img = pygame.transform.scale(nave_img, (nave_largura, nave_altura))
 
 class nave(pygame.sprite.Sprite):
