@@ -18,7 +18,7 @@ nave_altura = 38
 
 # variaveis gerais
 g = 2
-v = 30
+v = 25
 chao_altura = altura - 50
 # Cria janela, nome e icone
 janela = pygame.display.set_mode((largura, altura))
@@ -40,7 +40,7 @@ pulando = 1
 caindo = 2
 
 class nave(pygame.sprite.Sprite):
-    def __init__(self, img):
+    def __init__(self, img, todas_sprites, todas_balas, bala_img):
         pygame.sprite.Sprite.__init__(self)
 
         self.state = parado
@@ -52,6 +52,9 @@ class nave(pygame.sprite.Sprite):
         self.rect.top = 0
         self.vx = 0
         self.vy = 0
+        self.todas_sprites = todas_sprites
+        self.todas_balas = todas_balas
+        self.bala_img = bala_img
 
     def update(self):
         self.vy += g
@@ -71,15 +74,37 @@ class nave(pygame.sprite.Sprite):
         elif self.rect.left < 0:
             self.rect.left = 0
        
-    #Comandos
     def pula(self):
         if self.state == parado:
             self.vy -= v
             self.state = pulando
+        
+    def atira(self):
+        nova_bala = bala(self.bala_img, self.rect.top, self.rect.x)
+        self.todas_sprites.add(nova_bala)
+        self.todas_balas.add(nova_bala)
+
+class bala(pygame.sprite.Sprite):
+    def __init__(self, img, bottom, centerx):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.centerx = centerx
+        self.rect.bottom = bottom
+        self.vy = -10
+
+    def update(self):
+        self.rect.y += self.vy
+
+        if self.rect.bottom < 0:
+            self.kill()
+
 
 todas_sprites = pygame.sprite.Group()
+todas_balas = pygame.sprite.Group()
 
-jogador = nave(nave_img)
+jogador = nave(nave_img, todas_sprites, todas_balas, bala_img)
 todas_sprites.add(jogador)
 
 # ajustar velocidade
@@ -101,13 +126,13 @@ while controle == 0:
                 jogador.vx += 10
             elif evento.key == pygame.K_SPACE:
                 jogador.pula()
+            elif evento.key == pygame.K_p:
+                jogador.atira()
         elif evento.type == pygame.KEYUP:
             if evento.key == pygame.K_a:
                 jogador.vx += 10
             elif evento.key == pygame.K_d:
                 jogador.vx -= 10
-
-       
 
     todas_sprites.update()
     janela.fill(preto)
