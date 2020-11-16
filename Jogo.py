@@ -1,144 +1,113 @@
-# importa bibliotecas
 import pygame
-import random
-import math
 
-# inicializa o jogo
+#inicializa o jogo
 pygame.init()
 
-# variaveis de cor
-branco = (255,255,255)
-preto = (0,0,0)
+#cria o tamanho da tela de display
+screen = pygame.display.set_mode((500, 500))
 
-# variaveis de dimensoes
-largura = 800
-altura = 650
-nave_largura = 50
-nave_altura = 38
-
-# variaveis gerais
-g = 2
-v = 25
-chao_altura = altura - 50
-# Cria janela, nome e icone
-janela = pygame.display.set_mode((largura, altura))
-
-pygame.display.set_caption('Space Frogerson')
-
-icone = pygame.image.load("assets/img/playerShip1_orange.png")
-pygame.display.set_icon(icone)
-
-# Cria imagem a dimensoes desejaveis
+#cria imagens a tamanhos desejaveis
 nave_img = pygame.image.load('assets/img/playerShip1_orange.png').convert_alpha()
-nave_img = pygame.transform.scale(nave_img, (nave_largura, nave_altura))
+nave_img = pygame.transform.scale(nave_img, (30, 30))
 
-bala_img = pygame.image.load('assets/img/laserRed16.png').convert_alpha()
+bala_img = pygame.image.load('assets/img/regularExplosion00.png').convert_alpha()
+bala_img = pygame.transform.scale(bala_img, (30, 30))
 
-# Estados do jogador
-parado = 0
-pulando = 1
-caindo = 2
 
-class nave(pygame.sprite.Sprite):
-    def __init__(self, img, todas_sprites, todas_balas, bala_img):
+class Jogador(pygame.sprite.Sprite):
+    def __init__(self, img):
+
         pygame.sprite.Sprite.__init__(self)
 
-        self.state = parado
+        self.image = img
+        self.angle = 0
+
+    def update(self, img):
+
+        #cria um vetor na nave conforme a imagem da nave e o rotaciona conforme o angulo mexido pelo jogador
+        self.direcao_jogador = pygame.Vector2(1,0).rotate(-self.angle)
+
+        #rotaciona a imagem da nave conforme o angulo mexido pelo jogador
+        self.image = pygame.transform.rotate(img, self.angle)
+
+        #posicao da nave 
+        self.rect = self.image.get_rect()
+        self.rect.center = (250,250)
+
+class Balas(pygame.sprite.Sprite):
+    def __init__(self, direcao_jogador, img): 
+
+        pygame.sprite.Sprite.__init__(self)
 
         self.image = img
+
+        #cria um vetor na bala conforme a imagem da nave e o rotaciona conforme o angulo mexido pelo jogador
+        self.direcao_bala = direcao_jogador
+
+        #posicao inicial da bala
         self.rect = self.image.get_rect()
-        self.rect.x = 50
-        self.rect.y = chao_altura - nave_altura
-        self.rect.top = 0
-        self.vx = 0
-        self.vy = 0
-        self.todas_sprites = todas_sprites
-        self.todas_balas = todas_balas
-        self.bala_img = bala_img
+        self.rect.center = (250,250)
 
-    def update(self):
-        self.vy += g
-        if self.vy > 0:
-            self.state = caindo
-        self.rect.y += self.vy
-        if self.rect.bottom > chao_altura:
-            self.rect.bottom = chao_altura
-            self.vy = 0
-            self.state = parado
-
-        self.rect.x += self.vx
-
-        # Mantém o jogador na tela
-        if self.rect.right > largura:
-            self.rect.right = largura
-        elif self.rect.left < 0:
-            self.rect.left = 0
-       
-    def pula(self):
-        if self.state == parado:
-            self.vy -= v
-            self.state = pulando
+        #vetor criado na posicao inicial da bala
+        self.vetor = pygame.Vector2(self.rect.center)
         
-    def atira(self):
-        nova_bala = bala(self.bala_img, self.rect.top, self.rect.x)
-        self.todas_sprites.add(nova_bala)
-        self.todas_balas.add(nova_bala)
+    def update(self, img):
+        #vetor da bala seguir com o sentido da nave
+        self.vetor += self.direcao_bala
 
-class bala(pygame.sprite.Sprite):
-    def __init__(self, img, bottom, centerx):
-        pygame.sprite.Sprite.__init__(self)
-
-        self.image = img
-        self.rect = self.image.get_rect()
-        self.rect.centerx = centerx
-        self.rect.bottom = bottom
-        self.vy = -10
-
-    def update(self):
-        self.rect.y += self.vy
-
-        if self.rect.bottom < 0:
+        #atualiza a posicao da bala
+        self.rect.center = self.vetor
+        
+        #apaga a bala se sair da tela
+        self.vetor.x = self.vetor[0]
+        self.vetor.y = self.vetor[1]
+        if self.vetor.x > 500 or self.vetor.x < 0:
+            self.kill()
+        elif self.vetor.y > 500 or self.vetor.y < 0:
             self.kill()
 
+#cria sprites para facilitar a execucao final
+sprites = pygame.sprite.Group()
 
-todas_sprites = pygame.sprite.Group()
-todas_balas = pygame.sprite.Group()
+#adiciona o jogador nas sprites
+jogador = Jogador(nave_img)
+sprites.add(jogador)
 
-jogador = nave(nave_img, todas_sprites, todas_balas, bala_img)
-todas_sprites.add(jogador)
-
-# ajustar velocidade
+#velocidade do jogo
 clock = pygame.time.Clock()
-FPS = 60
+FPS = 30
 
-# Looping do jogo
-controle= 0
-while controle == 0:
+#loop do jogo
+controle = True
+while controle:
     clock.tick(FPS)
- 
     for evento in pygame.event.get():
-        if evento.type == pygame.QUIT:  
-            controle = 1
-        elif evento.type == pygame.KEYDOWN:
-            if evento.key == pygame.K_a:
-                jogador.vx -= 10
-            elif evento.key == pygame.K_d:
-                jogador.vx += 10
-            elif evento.key == pygame.K_SPACE:
-                jogador.pula()
-            elif evento.key == pygame.K_p:
-                jogador.atira()
-        elif evento.type == pygame.KEYUP:
-            if evento.key == pygame.K_a:
-                jogador.vx += 10
-            elif evento.key == pygame.K_d:
-                jogador.vx -= 10
+        if evento.type == pygame.QUIT:
+            controle = False
+        if evento.type == pygame.KEYDOWN:
+            #cria bala
+            if evento.key == pygame.K_SPACE: 
+                #adiciona nas sprites as balas
+                sprites.add(Balas(jogador.direcao_jogador, bala_img)) 
 
-    todas_sprites.update()
-    janela.fill(preto)
-    todas_sprites.draw(janela)
+    #enquanto a tecla estiver apertada o jogador gira
+    pressed = pygame.key.get_pressed()
+    if pressed[pygame.K_a]:
+        jogador.angle += 10
+    if pressed[pygame.K_d]:
+        jogador.angle -= 10
+           
+    #atualiza o jogo
+    sprites.update(nave_img)
 
+    #cor de fundo 
+    screen.fill((0, 0, 0))
+
+    #mostra as imagens na tela
+    sprites.draw(screen)
+
+    #mostra o proximo frame
     pygame.display.update()
 
-# Finalizando o jogo
+#finaliza o jogo
 pygame.quit()
