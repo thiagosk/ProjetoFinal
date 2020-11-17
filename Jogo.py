@@ -162,18 +162,33 @@ FPS = 50
 #valor inicial do score
 score = 0
 
+#numero de balas totais
+balass = 10
+
+#contagem do tempo
+t_max = 45
+start_ticks=pygame.time.get_ticks()
+
 #loop do jogo
 controle = True
 while controle:
     clock.tick(FPS)
+
+    #contagem do tempo
+    seconds=int((pygame.time.get_ticks()-start_ticks)/1000)
+    if seconds>t_max: 
+        controle = False
+
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             controle = False
         if evento.type == pygame.KEYDOWN:
             #cria bala
-            if evento.key == pygame.K_SPACE: 
-                #adiciona no seu grupo as balas
+            if evento.key == pygame.K_SPACE and balass != 0 :
                 todas_balas.add(Balas(jogador.direcao_jogador, bala_img)) 
+                balass -= 1
+    if balass == 0:
+        controle = False
 
     #enquanto a tecla estiver apertada o jogador gira
     pressed = pygame.key.get_pressed()
@@ -209,6 +224,18 @@ while controle:
     texto = score_font.render("{:05d}".format(score), True, (255, 255, 0))
     text_rect = texto.get_rect()
     text_rect.midtop = (largura / 2,  10)
+    screen.blit(texto, text_rect)
+
+    #mostra quantidade de balas
+    texto = score_font.render("{:02d}".format(balass), True, (0, 255, 255))
+    text_rect = texto.get_rect()
+    text_rect.midtop = (largura - 100, altura-100)
+    screen.blit(texto, text_rect)
+
+    #mostra o tempo
+    texto = score_font.render("{0:03d}/{1}".format(seconds,t_max), True, (100, 255, 100))
+    text_rect = texto.get_rect()
+    text_rect.midtop = (150,  100)
     screen.blit(texto, text_rect)
 
     #mostra o proximo frame
