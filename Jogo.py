@@ -16,8 +16,8 @@ nave_img = pygame.transform.scale(nave_img, (30, 30))
 bala_img = pygame.image.load('assets/img/regularExplosion00.png').convert_alpha()
 bala_img = pygame.transform.scale(bala_img, (30, 30))
 
-l_meteoro = 30
-a_meteoro = 30
+l_meteoro = 50
+a_meteoro = 50
 meteoro_img = pygame.image.load('assets/img/meteorBrown_med1.png').convert_alpha()
 meteoro_img = pygame.transform.scale(meteoro_img, (l_meteoro, a_meteoro))
 
@@ -83,27 +83,65 @@ class Meteoros(pygame.sprite.Sprite):
 
         self.image = img
         self.rect = self.image.get_rect()
-        self.rect.x = random.randint(0, largura - l_meteoro)
-        self.rect.y = random.randint(-50, - a_meteoro)
-        self.speedx = random.randint(-1, 1)
-        self.speedy = random.randint(1, 1)
+
+        #posicao inicial do meteoro
+        #sorteio de um numero para ver qual lado o meteoro ira surgir
+        self.numero = random.randint(1,4)
+        if self.numero == 1:
+            self.rect.x = random.randint(0, largura - l_meteoro)
+            self.rect.y = random.randint(altura, altura + a_meteoro)
+        elif self.numero == 2:
+            self.rect.x = random.randint(0, largura - l_meteoro)
+            self.rect.y = random.randint(-51, - a_meteoro)
+        elif self.numero == 3:
+            self.rect.x = random.randint(-l_meteoro,0)
+            self.rect.y = random.randint(0, altura)
+        elif self.numero == 4:
+            self.rect.x = random.randint(largura,largura+l_meteoro)
+            self.rect.y = random.randint(0,altura)
+
+        #velocidade do meteoro
+        if self.numero == 1 or self.numero == 2:
+            self.speedx = random.randint(-1, 1)
+            self.speedy = random.randint(-1, 1)
+        elif self.numero == 3:
+            self.speedx = random.randint(0, 2)
+            self.speedy = random.randint(-1, +1)
+        elif self.numero == 4:
+            self.speedx = random.randint(-2, 0)
+            self.speedy = random.randint(-1, +1)
 
     def update(self):
         #atualiza a posicao do meteoro
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         
-        #se o meteoro sair da tela ele volta para o inicio
-        if self.rect.top > altura or self.rect.right < 0 or self.rect.left > largura:
-            self.rect.x = random.randint(0, largura - l_meteoro)
-            self.rect.y = random.randint(-50, - a_meteoro)
-            self.speedx = random.randint(-1, 1)
-            self.speedy = random.randint(1, 1)
+        #se o meteoro sair da tela um novo meteoro aparece
+        if self.rect.y > altura or self.rect.x < 0 or self.rect.x > largura or self.rect.y < -52:
+            if self.numero == 1:
+                self.rect.x = random.randint(0, largura - l_meteoro)
+                self.rect.y = random.randint(altura, altura + a_meteoro)
+                self.speedx = random.randint(-1, 1)
+                self.speedy = random.randint(-1, 1)
+            elif self.numero == 2:
+                self.rect.x = random.randint(0, largura - l_meteoro)
+                self.rect.y = random.randint(-51, - a_meteoro)
+                self.speedx = random.randint(-1, 1)
+                self.speedy = random.randint(-1, 1)
+            elif self.numero == 3:
+                self.rect.x = random.randint(-l_meteoro,0)
+                self.rect.y = random.randint(0, altura )
+                self.speedx = random.randint(0, 2)
+                self.speedy = random.randint(-1, +1)
+            elif self.numero == 4:
+                self.rect.x = random.randint(largura,largura+l_meteoro)
+                self.rect.y = random.randint(0,altura)
+                self.speedx = random.randint(-2, 0)
+                self.speedy = random.randint(-1, +1)
 
 
 #cria sprites para facilitar a execucao final
 sprites = pygame.sprite.Group()
-
 todos_meteoros = pygame.sprite.Group()
 todas_balas = pygame.sprite.Group()
 
@@ -111,7 +149,7 @@ todas_balas = pygame.sprite.Group()
 jogador = Jogador(nave_img)
 sprites.add(jogador) 
 
-#criando os meteoros e os adicionando nas sprites
+#criando os meteoros e os adicionando no seu grupo
 for i in range(20):
     todos_meteoros.add(Meteoros(meteoro_img))
 
@@ -129,7 +167,7 @@ while controle:
         if evento.type == pygame.KEYDOWN:
             #cria bala
             if evento.key == pygame.K_SPACE: 
-                #adiciona nas sprites as balas
+                #adiciona no seu grupo as balas
                 todas_balas.add(Balas(jogador.direcao_jogador, bala_img)) 
 
     #enquanto a tecla estiver apertada o jogador gira
@@ -148,7 +186,7 @@ while controle:
     hits = pygame.sprite.groupcollide(todos_meteoros, todas_balas, True, True)
 
     #quando um meteoro desaparece, um outro surge
-    for meteor in hits: 
+    for i in hits: 
         todos_meteoros.add(Meteoros(meteoro_img))
 
     #cor de fundo 
