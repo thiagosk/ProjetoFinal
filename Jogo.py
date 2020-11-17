@@ -5,8 +5,8 @@ import random
 pygame.init()
 
 #cria o tamanho da tela de display
-largura = 1200
-altura = 800
+largura = 1500
+altura = 750
 screen = pygame.display.set_mode((largura, altura))
 
 #cria imagens a tamanhos desejaveis
@@ -20,6 +20,8 @@ l_meteoro = 50
 a_meteoro = 50
 meteoro_img = pygame.image.load('assets/img/meteorBrown_med1.png').convert_alpha()
 meteoro_img = pygame.transform.scale(meteoro_img, (l_meteoro, a_meteoro))
+
+score_font = pygame.font.Font('assets/font/PressStart2P.ttf', 30)
 
 
 class Jogador(pygame.sprite.Sprite):
@@ -157,6 +159,9 @@ for i in range(20):
 clock = pygame.time.Clock()
 FPS = 50
 
+#valor inicial do score
+score = 0
+
 #loop do jogo
 controle = True
 while controle:
@@ -189,6 +194,9 @@ while controle:
     for i in hits: 
         todos_meteoros.add(Meteoros(meteoro_img))
 
+        #atualiza o score
+        score+=100
+
     #cor de fundo 
     screen.fill((0, 0, 0))
 
@@ -196,6 +204,12 @@ while controle:
     sprites.draw(screen)
     todas_balas.draw(screen)
     todos_meteoros.draw(screen)
+
+    #mostra o score
+    texto = score_font.render("{:05d}".format(score), True, (255, 255, 0))
+    text_rect = texto.get_rect()
+    text_rect.midtop = (largura / 2,  10)
+    screen.blit(texto, text_rect)
 
     #mostra o proximo frame
     pygame.display.update()
