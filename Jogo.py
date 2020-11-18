@@ -23,6 +23,8 @@ meteoro_img = pygame.transform.scale(meteoro_img, (l_meteoro, a_meteoro))
 
 score_font = pygame.font.Font('assets/font/PressStart2P.ttf', 30)
 
+background = pygame.image.load('assets/img/starfield.png').convert()
+background = pygame.transform.scale(background, (largura, altura))
 
 class Jogador(pygame.sprite.Sprite):
     def __init__(self, img):
@@ -112,6 +114,10 @@ class Meteoros(pygame.sprite.Sprite):
         elif self.numero == 4:
             self.speedx = random.randint(-2, 0)
             self.speedy = random.randint(-1, +1)
+        if self.speedx == 0:
+            self.speedx = 1
+        if self.speedy == 0:
+            self.speedy = 1
 
     def update(self):
         #atualiza a posicao do meteoro
@@ -119,10 +125,10 @@ class Meteoros(pygame.sprite.Sprite):
         self.rect.y += self.speedy
         
         #se o meteoro sair da tela um novo meteoro aparece
-        if self.rect.y > altura or self.rect.x < 0 or self.rect.x > largura or self.rect.y < -52:
+        if self.rect.y > altura or self.rect.x < -l_meteoro or self.rect.x > largura or self.rect.y < -52:
             if self.numero == 1:
                 self.rect.x = random.randint(0, largura - l_meteoro)
-                self.rect.y = random.randint(altura, altura + a_meteoro)
+                self.rect.y = random.randint(altura, altura + a_meteoro) 
                 self.speedx = random.randint(-1, 1)
                 self.speedy = random.randint(-1, 1)
             elif self.numero == 2:
@@ -132,7 +138,7 @@ class Meteoros(pygame.sprite.Sprite):
                 self.speedy = random.randint(-1, 1)
             elif self.numero == 3:
                 self.rect.x = random.randint(-l_meteoro,0)
-                self.rect.y = random.randint(0, altura )
+                self.rect.y = random.randint(0, altura)
                 self.speedx = random.randint(0, 2)
                 self.speedy = random.randint(-1, +1)
             elif self.numero == 4:
@@ -140,7 +146,10 @@ class Meteoros(pygame.sprite.Sprite):
                 self.rect.y = random.randint(0,altura)
                 self.speedx = random.randint(-2, 0)
                 self.speedy = random.randint(-1, +1)
-
+        if self.speedx == 0:
+            self.speedx = 1
+        if self.speedy == 0:
+            self.speedy = 1
 
 #cria sprites para facilitar a execucao final
 sprites = pygame.sprite.Group()
@@ -157,7 +166,7 @@ for i in range(20):
 
 #velocidade do jogo
 clock = pygame.time.Clock()
-FPS = 50
+FPS = 30
 
 #valor inicial do score
 score = 0
@@ -166,7 +175,7 @@ score = 0
 balass = 10
 
 #contagem do tempo
-t_max = 45
+t_max = 20
 start_ticks=pygame.time.get_ticks()
 
 #loop do jogo
@@ -176,7 +185,7 @@ while controle:
 
     #contagem do tempo
     seconds=int((pygame.time.get_ticks()-start_ticks)/1000)
-    if seconds>t_max: 
+    if seconds>=t_max: 
         controle = False
 
     for evento in pygame.event.get():
@@ -214,6 +223,7 @@ while controle:
 
     #cor de fundo 
     screen.fill((0, 0, 0))
+    screen.blit(background, (0, 0))
 
     #mostra as imagens na tela
     sprites.draw(screen)
@@ -227,15 +237,15 @@ while controle:
     screen.blit(texto, text_rect)
 
     #mostra quantidade de balas
-    texto = score_font.render("{:02d}".format(balass), True, (0, 255, 255))
+    texto = score_font.render("Balas: {:02d}".format(balass), True, (0, 255, 255))
     text_rect = texto.get_rect()
-    text_rect.midtop = (largura - 100, altura-100)
+    text_rect.midtop = (largura - 200, altura-100)
     screen.blit(texto, text_rect)
 
     #mostra o tempo
-    texto = score_font.render("{0:03d}/{1}".format(seconds,t_max), True, (100, 255, 100))
+    texto = score_font.render("Tempo:{0:02d}/{1}".format(seconds,t_max), True, (100, 255, 100))
     text_rect = texto.get_rect()
-    text_rect.midtop = (150,  100)
+    text_rect.midtop = (200,  100)
     screen.blit(texto, text_rect)
 
     #mostra o proximo frame
