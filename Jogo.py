@@ -14,10 +14,10 @@ nave_img = pygame.image.load('assets/img/playerShip1_orange.png').convert_alpha(
 nave_img = pygame.transform.scale(nave_img, (30, 30))
 
 bala_img = pygame.image.load('assets/img/regularExplosion00.png').convert_alpha()
-bala_img = pygame.transform.scale(bala_img, (30, 30))
+bala_img = pygame.transform.scale(bala_img, (20, 20))
 
-l_meteoro = 50
-a_meteoro = 50
+l_meteoro = 30
+a_meteoro = 30
 meteoro_img = pygame.image.load('assets/img/meteorBrown_med1.png').convert_alpha()
 meteoro_img = pygame.transform.scale(meteoro_img, (l_meteoro, a_meteoro))
 
@@ -211,7 +211,7 @@ jogador = Jogador(nave_img)
 sprites.add(jogador) 
 
 #criando os meteoros e os adicionando no seu grupo
-for i in range(20):
+for i in range(10):
     todos_meteoros.add(Meteoros(meteoro_img))
 
 #velocidade do jogo
@@ -225,7 +225,7 @@ score = 0
 balass = 10
 
 #contagem do tempo
-t_max = 3000
+t_max = 30
 start_ticks=pygame.time.get_ticks()
 
 #loop do jogo
@@ -291,7 +291,7 @@ while controle:
     todos_meteoros.draw(screen)
 
     #mostra o score
-    texto = score_font.render("{:05d}".format(score), True, (255, 255, 0))
+    texto = score_font.render("{:04d}".format(score), True, (255, 255, 0))
     text_rect = texto.get_rect()
     text_rect.midtop = (largura / 2,  10)
     screen.blit(texto, text_rect)
