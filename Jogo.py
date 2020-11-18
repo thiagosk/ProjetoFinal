@@ -26,6 +26,15 @@ score_font = pygame.font.Font('assets/font/PressStart2P.ttf', 30)
 background = pygame.image.load('assets/img/starfield.png').convert()
 background = pygame.transform.scale(background, (largura, altura))
 
+explosion_anim = []
+for i in range(9):
+    # Os arquivos de animação são numerados de 00 a 08
+    filename = 'assets/img/regularExplosion0{}.png'.format(i)
+    img = pygame.image.load(filename).convert()
+    img = pygame.transform.scale(img, (32, 32))
+    explosion_anim.append(img)
+
+
 class Jogador(pygame.sprite.Sprite):
     def __init__(self, img):
 
@@ -104,6 +113,8 @@ class Meteoros(pygame.sprite.Sprite):
             self.rect.x = random.randint(largura,largura+l_meteoro)
             self.rect.y = random.randint(0,altura)
 
+        self.rect.center = (self.rect.x,self.rect.y)
+
         #velocidade do meteoro
         if self.numero == 1 or self.numero == 2:
             self.speedx = random.randint(-1, 1)
@@ -146,10 +157,49 @@ class Meteoros(pygame.sprite.Sprite):
                 self.rect.y = random.randint(0,altura)
                 self.speedx = random.randint(-2, 0)
                 self.speedy = random.randint(-1, +1)
+
+            self.rect.center = (self.rect.x,self.rect.y)
+
         if self.speedx == 0:
             self.speedx = 1
         if self.speedy == 0:
             self.speedy = 1
+
+
+class Explosion(pygame.sprite.Sprite):
+
+    def __init__(self, center, img):
+
+        pygame.sprite.Sprite.__init__(self)
+
+        self.explosion_anim = img
+
+        self.frame = 0  
+        self.image = self.explosion_anim[self.frame]  
+        self.rect = self.image.get_rect()
+        self.rect.center = center  
+
+        self.last_update = pygame.time.get_ticks()
+
+        self.frame_ticks = 50
+
+    def update(self,img):
+        now = pygame.time.get_ticks()
+        elapsed_ticks = now - self.last_update
+
+        if elapsed_ticks > self.frame_ticks:
+            self.last_update = now
+
+            self.frame += 1
+
+            if self.frame == len(self.explosion_anim):
+                self.kill()
+            else:
+                center = self.rect.center
+                self.image = self.explosion_anim[self.frame]
+                self.rect = self.image.get_rect()
+                self.rect.center = center
+
 
 #cria sprites para facilitar a execucao final
 sprites = pygame.sprite.Group()
@@ -175,7 +225,7 @@ score = 0
 balass = 10
 
 #contagem do tempo
-t_max = 20
+t_max = 3000
 start_ticks=pygame.time.get_ticks()
 
 #loop do jogo
@@ -192,12 +242,16 @@ while controle:
         if evento.type == pygame.QUIT:
             controle = False
         if evento.type == pygame.KEYDOWN:
-            #cria bala
+            #cria bala e limita a quantidade de tiros
             if evento.key == pygame.K_SPACE and balass != 0 :
-                todas_balas.add(Balas(jogador.direcao_jogador, bala_img)) 
+                balas = Balas(jogador.direcao_jogador, bala_img)
+                todas_balas.add(balas)
                 balass -= 1
+
+    #Game over se as balas acabarem e nao estiverem mais na tela
     if balass == 0:
-        controle = False
+        if len(todas_balas) == 0:
+            controle = False
 
     #enquanto a tecla estiver apertada o jogador gira
     pressed = pygame.key.get_pressed()
@@ -206,20 +260,26 @@ while controle:
     if pressed[pygame.K_d]:
         jogador.angle -= 4
            
-    #atualiza o jogo
-    sprites.update(nave_img)
-    todas_balas.update()
-    todos_meteoros.update()
 
     #se a bala colidir com o meteoro, ambos desaparecem
     hits = pygame.sprite.groupcollide(todos_meteoros, todas_balas, True, True)
 
     #quando um meteoro desaparece, um outro surge
     for i in hits: 
-        todos_meteoros.add(Meteoros(meteoro_img))
+        meteoros = Meteoros(meteoro_img)
+        todos_meteoros.add(meteoros)
 
         #atualiza o score
         score+=100
+
+        #chama a animaçao de colisao
+        explosao = Explosion(i.rect.center, explosion_anim)
+        sprites.add(explosao)
+
+    #atualiza o jogo
+    sprites.update(nave_img)
+    todas_balas.update()
+    todos_meteoros.update()
 
     #cor de fundo 
     screen.fill((0, 0, 0))
@@ -238,7 +298,7 @@ while controle:
 
     #mostra quantidade de balas
     texto = score_font.render("Balas: {:02d}".format(balass), True, (0, 255, 255))
-    text_rect = texto.get_rect()
+    text_rect = texto.get_rect() 
     text_rect.midtop = (largura - 200, altura-100)
     screen.blit(texto, text_rect)
 
