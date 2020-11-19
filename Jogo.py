@@ -1,6 +1,7 @@
 import pygame
 import random
 import sys
+import time
 
 #inicializa o jogo
 pygame.init()
@@ -245,7 +246,7 @@ while estado == "inicio":
 
                 if button1.collidepoint(mouse_posicao):
                     #tempo inicial
-                    tempo = 30
+                    tempo = 10
                     start_ticks=pygame.time.get_ticks()
 
                     #balas iniciais
@@ -261,6 +262,26 @@ while estado == "inicio":
                         #contagem do tempo
                         seconds=int(tempo+(start_ticks-pygame.time.get_ticks())/1000)
                         if seconds == 0: 
+
+                            while seconds != -3:
+                                seconds=int(tempo+(start_ticks-pygame.time.get_ticks())/1000)
+                               
+                                screen.fill((0, 0, 0))
+
+                                texto = score_font.render("Game over", True, (100, 255, 100))
+                                text_rect = texto.get_rect()
+                                text_rect.midtop = (200,  100)
+                                screen.blit(texto, text_rect)
+
+                                for evento in pygame.event.get():
+                                    if evento.type == pygame.QUIT:
+                                        pygame.quit()
+
+                                pygame.display.update()
+
+                            todos_meteoros.empty()
+                            todas_balas.empty()
+                            
                             estado = "inicio"
 
                         for evento in pygame.event.get():
@@ -276,6 +297,7 @@ while estado == "inicio":
                         #Game over se as balas acabarem e nao estiverem mais na tela
                         if balass == 0:
                             if len(todas_balas) == 0:
+                                
                                 estado = "inicio"
 
                         #enquanto a tecla estiver apertada o jogador gira
@@ -435,4 +457,3 @@ while estado == "inicio":
         pygame.display.update()
 
 pygame.quit()
-sys.exit
