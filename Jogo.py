@@ -224,8 +224,9 @@ score = 0
 #numero de balas totais
 balass = 10
 
-#contagem do tempo
-t_max = 30
+#tempo inicial
+to = 30
+#comecar no 0
 start_ticks=pygame.time.get_ticks()
 
 #loop do jogo
@@ -234,8 +235,8 @@ while controle:
     clock.tick(FPS)
 
     #contagem do tempo
-    seconds=int((pygame.time.get_ticks()-start_ticks)/1000)
-    if seconds>=t_max: 
+    seconds=int(to+(start_ticks-pygame.time.get_ticks())/1000)
+    if seconds==0: 
         controle = False
 
     for evento in pygame.event.get():
@@ -303,7 +304,7 @@ while controle:
     screen.blit(texto, text_rect)
 
     #mostra o tempo
-    texto = score_font.render("Tempo:{0:02d}/{1}".format(seconds,t_max), True, (100, 255, 100))
+    texto = score_font.render("Tempo:{0:02d}".format(seconds), True, (100, 255, 100))
     text_rect = texto.get_rect()
     text_rect.midtop = (200,  100)
     screen.blit(texto, text_rect)
