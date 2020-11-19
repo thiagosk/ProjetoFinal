@@ -1,13 +1,22 @@
 import pygame
 import random
+import sys
 
 #inicializa o jogo
 pygame.init()
 
 #cria o tamanho da tela de display
-largura = 1500
+largura = 750
 altura = 750
 screen = pygame.display.set_mode((largura, altura))
+
+#nome da tela
+pygame.display.set_caption('Navinha')
+
+#icone da tela
+nave_img = pygame.image.load('assets/img/playerShip1_orange.png').convert_alpha()
+nave_img = pygame.transform.scale(nave_img, (30, 30))
+pygame.display.set_icon(nave_img)
 
 #cria imagens a tamanhos desejaveis
 nave_img = pygame.image.load('assets/img/playerShip1_orange.png').convert_alpha()
@@ -211,106 +220,139 @@ jogador = Jogador(nave_img)
 sprites.add(jogador) 
 
 #criando os meteoros e os adicionando no seu grupo
-for i in range(10):
+for i in range(5):
     todos_meteoros.add(Meteoros(meteoro_img))
 
 #velocidade do jogo
 clock = pygame.time.Clock()
 FPS = 30
 
-#valor inicial do score
-score = 0
+estado = "inicio"
 
-#numero de balas totais
-balass = 10
+while estado == "inicio":
+    #cria botao
+    button1 = pygame.Rect(largura/2, altura/3, 200, 100)
 
-#tempo inicial
-to = 30
-#comecar no 0
-start_ticks=pygame.time.get_ticks()
-
-#loop do jogo
-controle = True
-while controle:
     clock.tick(FPS)
-
-    #contagem do tempo
-    seconds=int(to+(start_ticks-pygame.time.get_ticks())/1000)
-    if seconds==0: 
-        controle = False
-
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
-            controle = False
-        if evento.type == pygame.KEYDOWN:
-            #cria bala e limita a quantidade de tiros
-            if evento.key == pygame.K_SPACE and balass != 0 :
-                balas = Balas(jogador.direcao_jogador, bala_img)
-                todas_balas.add(balas)
-                balass -= 1
+            pygame.quit()
+        if evento.type == pygame.MOUSEBUTTONDOWN:
+                #posicao do mouse
+                mouse_posicao = evento.pos  
 
-    #Game over se as balas acabarem e nao estiverem mais na tela
-    if balass == 0:
-        if len(todas_balas) == 0:
-            controle = False
+                if button1.collidepoint(mouse_posicao):
+                    #tempo inicial
+                    tempo = 30
+                    start_ticks=pygame.time.get_ticks()
 
-    #enquanto a tecla estiver apertada o jogador gira
-    pressed = pygame.key.get_pressed()
-    if pressed[pygame.K_a]:
-        jogador.angle += 4
-    if pressed[pygame.K_d]:
-        jogador.angle -= 4
-           
+                    #balas iniciais
+                    balass = 10
 
-    #se a bala colidir com o meteoro, ambos desaparecem
-    hits = pygame.sprite.groupcollide(todos_meteoros, todas_balas, True, True)
+                    #score inicial
+                    score = 0
 
-    #quando um meteoro desaparece, um outro surge
-    for i in hits: 
-        meteoros = Meteoros(meteoro_img)
-        todos_meteoros.add(meteoros)
+                    estado = "jogando"
 
-        #atualiza o score
-        score+=100
+                    while estado == "jogando":
+                        clock.tick(FPS)
+                        #contagem do tempo
+                        seconds=int(tempo+(start_ticks-pygame.time.get_ticks())/1000)
+                        if seconds == 0: 
+                            estado = "inicio"
 
-        #chama a animaçao de colisao
-        explosao = Explosion(i.rect.center, explosion_anim)
-        sprites.add(explosao)
+                        for evento in pygame.event.get():
+                            if evento.type == pygame.QUIT:
+                                pygame.quit()
+                            if evento.type == pygame.KEYDOWN:
+                                #cria bala e limita a quantidade de tiros
+                                if evento.key == pygame.K_SPACE and balass != 0 :
+                                    balas = Balas(jogador.direcao_jogador, bala_img)
+                                    todas_balas.add(balas)
+                                    balass -= 1
+                        
+                        #Game over se as balas acabarem e nao estiverem mais na tela
+                        if balass == 0:
+                            if len(todas_balas) == 0:
+                                estado = "inicio"
 
-    #atualiza o jogo
-    sprites.update(nave_img)
-    todas_balas.update()
-    todos_meteoros.update()
+                        #enquanto a tecla estiver apertada o jogador gira
+                        pressed = pygame.key.get_pressed()
+                        if pressed[pygame.K_a]:
+                            jogador.angle += 4
+                        if pressed[pygame.K_d]:
+                            jogador.angle -= 4
 
-    #cor de fundo 
-    screen.fill((0, 0, 0))
-    screen.blit(background, (0, 0))
 
-    #mostra as imagens na tela
-    sprites.draw(screen)
-    todas_balas.draw(screen)
-    todos_meteoros.draw(screen)
+                        #se a bala colidir com o meteoro, ambos desaparecem
+                        hits = pygame.sprite.groupcollide(todos_meteoros, todas_balas, True, True)
 
-    #mostra o score
-    texto = score_font.render("{:04d}".format(score), True, (255, 255, 0))
-    text_rect = texto.get_rect()
-    text_rect.midtop = (largura / 2,  10)
-    screen.blit(texto, text_rect)
+                        #quando um meteoro desaparece, um outro surge
+                        for i in hits: 
+                            meteoros = Meteoros(meteoro_img)
+                            todos_meteoros.add(meteoros)
 
-    #mostra quantidade de balas
-    texto = score_font.render("Balas: {:02d}".format(balass), True, (0, 255, 255))
-    text_rect = texto.get_rect() 
-    text_rect.midtop = (largura - 200, altura-100)
-    screen.blit(texto, text_rect)
+                            #atualiza o score
+                            score+=100
 
-    #mostra o tempo
-    texto = score_font.render("Tempo:{0:02d}".format(seconds), True, (100, 255, 100))
-    text_rect = texto.get_rect()
-    text_rect.midtop = (200,  100)
-    screen.blit(texto, text_rect)
+                            #chama a animaçao de colisao
+                            explosao = Explosion(i.rect.center, explosion_anim)
+                            sprites.add(explosao)
 
-    #mostra o proximo frame
-    pygame.display.update()
+                        #atualiza o jogo
+                        sprites.update(nave_img)
+                        todas_balas.update()
+                        todos_meteoros.update()
 
-# Finaliza o jogo
+                        #cor de fundo 
+                        screen.fill((0, 0, 0))
+                        screen.blit(background, (0, 0))
+
+                        #mostra as imagens na tela
+                        sprites.draw(screen)
+                        todas_balas.draw(screen)
+                        todos_meteoros.draw(screen)
+
+                        #mostra o score
+                        texto = score_font.render("{:04d}".format(score), True, (255, 255, 0))
+                        text_rect = texto.get_rect()
+                        text_rect.midtop = (largura / 2,  10)
+                        screen.blit(texto, text_rect)
+
+                        #mostra quantidade de balas
+                        texto = score_font.render("Balas:{:02d}".format(balass), True, (0, 255, 255))
+                        text_rect = texto.get_rect() 
+                        text_rect.midtop = (largura - 200, altura-100)
+                        screen.blit(texto, text_rect)
+
+                        #mostra o tempo
+                        texto = score_font.render("Tempo:{0:02d}".format(seconds), True, (100, 255, 100))
+                        text_rect = texto.get_rect()
+                        text_rect.midtop = (200,  100)
+                        screen.blit(texto, text_rect)
+
+                        #mostra o proximo frame
+                        pygame.display.update()
+
+
+        #cor da tela
+        screen.fill((0, 0, 0))
+
+        #desenha retangulo do botao
+        pygame.draw.rect(screen, [255,255,255], button1)
+
+        texto = score_font.render("Nave", True, (255, 255, 0))
+        text_rect = texto.get_rect()
+        text_rect.midtop = (largura/2, 100)
+        screen.blit(texto, text_rect)
+
+        #mostra o PLAY do botao
+        texto = score_font.render("Play", True, (0, 255, 0))
+        text_rect = texto.get_rect()
+        text_rect.midtop = (largura/2, altura/3)
+        screen.blit(texto, text_rect)
+
+        pygame.display.update()
+
 pygame.quit()
+sys.exit
