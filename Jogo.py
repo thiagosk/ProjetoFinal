@@ -231,7 +231,9 @@ estado = "inicio"
 
 while estado == "inicio":
     #cria botao
-    button1 = pygame.Rect(largura/2, altura/3, 200, 100)
+    button1 = pygame.Rect(largura/2, altura-500, 200, 100)
+    button2 = pygame.Rect(largura/2, altura-300, 200, 100)
+    button4 = pygame.Rect(largura/2, altura-100, 200, 100)
 
     clock.tick(FPS)
     for evento in pygame.event.get():
@@ -333,6 +335,70 @@ while estado == "inicio":
 
                         #mostra o proximo frame
                         pygame.display.update()
+                    
+                elif button2.collidepoint(mouse_posicao):
+
+                    estado = "tutorial"
+
+                    while estado == "tutorial":
+                        screen.fill((0, 0, 0))
+
+                        texto = score_font.render("tutorial", True, (100, 255, 100))
+                        text_rect = texto.get_rect()
+                        text_rect.midtop = (200,  100)
+                        screen.blit(texto, text_rect)
+
+                        button3 = pygame.Rect(largura/3, altura-300, 200, 100)
+                        pygame.draw.rect(screen, [255,255,255], button3)
+
+                        texto = score_font.render("Voltar", True, (0, 255, 0))
+                        text_rect = texto.get_rect()
+                        text_rect.midtop = (largura/3, altura-300)
+                        screen.blit(texto, text_rect)
+
+                        pygame.display.update()
+
+                        for evento in pygame.event.get():
+                            if evento.type == pygame.QUIT:
+                                pygame.quit()
+                            if evento.type == pygame.MOUSEBUTTONDOWN:
+                                    #posicao do mouse
+                                    mouse_posicao = evento.pos  
+
+                                    if button3.collidepoint(mouse_posicao):
+                                        estado = "inicio"
+
+                elif button4.collidepoint(mouse_posicao):
+
+                    estado = "creditos"
+
+                    while estado == "creditos":
+                        screen.fill((0, 0, 0))
+
+                        texto = score_font.render("creditos", True, (100, 255, 100))
+                        text_rect = texto.get_rect()
+                        text_rect.midtop = (200,  100)
+                        screen.blit(texto, text_rect)
+
+                        button5 = pygame.Rect(largura/3, altura-300, 200, 100)
+                        pygame.draw.rect(screen, [255,255,255], button5)
+
+                        texto = score_font.render("Voltar", True, (0, 255, 0))
+                        text_rect = texto.get_rect()
+                        text_rect.midtop = (largura/3, altura-300)
+                        screen.blit(texto, text_rect)
+
+                        pygame.display.update()
+
+                        for evento in pygame.event.get():
+                            if evento.type == pygame.QUIT:
+                                pygame.quit()
+                            if evento.type == pygame.MOUSEBUTTONDOWN:
+                                    #posicao do mouse
+                                    mouse_posicao = evento.pos  
+
+                                    if button5.collidepoint(mouse_posicao):
+                                        estado = "inicio"
 
 
         #cor da tela
@@ -340,6 +406,8 @@ while estado == "inicio":
 
         #desenha retangulo do botao
         pygame.draw.rect(screen, [255,255,255], button1)
+        pygame.draw.rect(screen, [255,255,255], button2)
+        pygame.draw.rect(screen, [255,255,255], button4)
 
         texto = score_font.render("Nave", True, (255, 255, 0))
         text_rect = texto.get_rect()
@@ -350,6 +418,18 @@ while estado == "inicio":
         texto = score_font.render("Play", True, (0, 255, 0))
         text_rect = texto.get_rect()
         text_rect.midtop = (largura/2, altura/3)
+        screen.blit(texto, text_rect)
+
+        #mostra o TUTORIAL do botao
+        texto = score_font.render("Tutorial", True, (0, 255, 0))
+        text_rect = texto.get_rect()
+        text_rect.midtop = (largura/2, altura-300)
+        screen.blit(texto, text_rect)
+
+        #mostra o CREDITOS do botao
+        texto = score_font.render("credito", True, (0, 255, 0))
+        text_rect = texto.get_rect()
+        text_rect.midtop = (largura/2, altura-100)
         screen.blit(texto, text_rect)
 
         pygame.display.update()
