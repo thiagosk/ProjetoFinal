@@ -3,8 +3,9 @@ import random
 import sys
 import time
 
-#inicializa o jogo
+#inicializa o jogo e o som
 pygame.init()
+pygame.mixer.init()
 
 #cria o tamanho da tela de display
 largura = 750
@@ -53,6 +54,13 @@ for i in range(5):
     img = pygame.image.load(filename).convert()
     img = pygame.transform.scale(img, (32, 32))
     explosion_anim.append(img)
+
+#cria sons
+pygame.mixer.music.load('assets/snd/tgfcoder-FrozenJam-SeamlessLoop.ogg')
+pygame.mixer.music.set_volume(0.01)
+botao_sound = pygame.mixer.Sound('assets/snd/expl3.wav')
+destroy_sound = pygame.mixer.Sound('assets/snd/expl6.wav')
+pew_sound = pygame.mixer.Sound('assets/snd/pew.wav')
 
 
 class Jogador(pygame.sprite.Sprite):
@@ -244,6 +252,9 @@ estado = "inicio"
 #guarda score max
 max_p = 0
 
+pygame.mixer.music.play(loops=-1)
+
+#tela inicial
 while estado == "inicio":
     FPS = 30
 
@@ -262,6 +273,7 @@ while estado == "inicio":
                 
                 #se o mouse clicar no botao
                 if button1.collidepoint(mouse_posicao):
+                    botao_sound.play()
 
                     #tempo inicial e inicio da contagem       
                     tempo = 30
@@ -333,6 +345,7 @@ while estado == "inicio":
                             if evento.type == pygame.KEYDOWN:
                                 #cria bala e limita a quantidade de tiros
                                 if evento.key == pygame.K_SPACE and balass != 0:
+                                    pew_sound.play()
                                     balas = Balas(jogador.direcao_jogador, bala_img)
                                     todas_balas.add(balas)  
                                     balass -= 1
@@ -412,9 +425,12 @@ while estado == "inicio":
                             #atualiza o score
                             score+=100
 
+                            destroy_sound.play()
+
                             #chama a animaçao de colisao
                             explosao = Explosion(i.rect.center, explosion_anim)
                             sprites.add(explosao)
+                            
 
                         #atualiza o jogo
                         sprites.update(nave_img)
@@ -453,6 +469,7 @@ while estado == "inicio":
 
                 #se clicar no botao de tutorial
                 elif button2.collidepoint(mouse_posicao):
+                    botao_sound.play()
 
                     estado = "tutorial"
 
@@ -488,12 +505,14 @@ while estado == "inicio":
                                     mouse_posicao = evento.pos  
 
                                     if button3.collidepoint(mouse_posicao):
+                                        botao_sound.play()
 
                                         #volta para a tela de inicio
                                         estado = "inicio"
 
                 #se clicar no botao de tutorial
                 elif button4.collidepoint(mouse_posicao):
+                    botao_sound.play()
 
                     estado = "creditos"
 
@@ -525,6 +544,7 @@ while estado == "inicio":
                                     mouse_posicao = evento.pos  
 
                                     if button5.collidepoint(mouse_posicao):
+                                        botao_sound.play()
 
                                         #volta para a tela de inicio
                                         estado = "inicio"
