@@ -28,7 +28,7 @@ bala_img = pygame.transform.scale(bala_img, (20, 20))
 
 l_meteoro = 30
 a_meteoro = 30
-meteoro_img = pygame.image.load('assets/img/meteorBrown_med1.png').convert_alpha()
+meteoro_img = pygame.image.load('assets/img/asteroid.png').convert_alpha()
 meteoro_img = pygame.transform.scale(meteoro_img, (l_meteoro, a_meteoro))
 
 score_font = pygame.font.Font('assets/font/kindergarten.ttf', 30)
@@ -237,7 +237,6 @@ for i in range(5):
 
 #velocidade do jogo
 clock = pygame.time.Clock()
-FPS = 30
 
 #condicao para entrar na tela inicial
 estado = "inicio"
@@ -246,6 +245,8 @@ estado = "inicio"
 max_p = 0
 
 while estado == "inicio":
+    FPS = 30
+
     #cria botao
     button1 = pygame.Rect(316, 300, 120, 50)
     button2 = pygame.Rect(285, 430, 200, 50)
@@ -279,14 +280,14 @@ while estado == "inicio":
                         #contagem do tempo
                         seconds=int(tempo+(start_ticks-pygame.time.get_ticks())/1000)
 
-                        #condicao para nao ter duas telas gameover
-                        c = True
-
                         #se o tempo acaba, Game Over
-                        if seconds == 0 and c:
+                        if seconds == 0:
+                            
+                            # condicao para nao ter dois gameovers
+                            gameover = 1
 
                             #tela de game over por 3-4 segundos dps volta para a tela inicial
-                            while seconds != -3:
+                            while seconds != -3 and gameover == 1:
                                 #contagem do tempo
                                 seconds=int(tempo+(start_ticks-pygame.time.get_ticks())/1000)
                                
@@ -314,7 +315,6 @@ while estado == "inicio":
                                         pygame.quit()
 
                                 pygame.display.update()
-                                c = False
                             
                             #reset nos meteoros
                             todos_meteoros.empty()
@@ -332,10 +332,15 @@ while estado == "inicio":
                                 pygame.quit()
                             if evento.type == pygame.KEYDOWN:
                                 #cria bala e limita a quantidade de tiros
-                                if evento.key == pygame.K_SPACE and balass != 0 :
+                                if evento.key == pygame.K_SPACE and balass != 0:
                                     balas = Balas(jogador.direcao_jogador, bala_img)
                                     todas_balas.add(balas)  
                                     balass -= 1
+
+                                #se as balas tiverem acabado, mas o jogo nao, o jogador pode alterar a velocidade do jogo para acabar mais rapido
+                                if evento.key == pygame.K_r and balass == 0:
+                                    FPS = 60
+                                    
                         
                         #Game over se as balas acabarem e nao estiverem mais na tela
                         if balass == 0:
@@ -345,7 +350,10 @@ while estado == "inicio":
                                 start_ticks = pygame.time.get_ticks()
                                 seconds = tempo
 
-                                while seconds >= tempo - 3 and c:
+                                #condicao para nao ter dois gameovers
+                                gameover = 2
+
+                                while seconds >= tempo - 3 and gameover == 2:
                                     #contagem do tempo
                                     seconds=int(tempo+(start_ticks-pygame.time.get_ticks())/1000)
                                 
@@ -373,8 +381,7 @@ while estado == "inicio":
                                         if evento.type == pygame.QUIT:
                                             pygame.quit()
 
-                                    pygame.display.update()
-                                    c = False
+                                    pygame.display.update()                                 
                             
                                 #reset nos meteoros
                                 todos_meteoros.empty()
