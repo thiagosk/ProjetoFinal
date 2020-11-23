@@ -1,6 +1,5 @@
 import pygame
 import random
-import sys
 import time
 
 #inicializa o jogo e o som
@@ -41,7 +40,6 @@ luisao_img = pygame.transform.scale(luisao_img, (200, 300))
 
 pedrao_img = pygame.image.load('assets/img/pedro.png').convert_alpha()
 pedrao_img = pygame.transform.scale(pedrao_img, (200, 300))
-
 
 score_font = pygame.font.Font('assets/font/kindergarten.ttf', 30)
 score_font2 = pygame.font.Font('assets/font/kindergarten.ttf', 50)
@@ -95,13 +93,13 @@ class Jogador(pygame.sprite.Sprite):
         # Rotaciona a imagem da nave conforme o angulo mexido pelo jogador
         self.image = pygame.transform.rotate(img, self.angle)
 
-        # Posição da nave 
+        # Posição da nave
         self.rect = self.image.get_rect()
         self.rect.center = (largura/2, altura/2)
 
 
 class Balas(pygame.sprite.Sprite):
-    def __init__(self, direcao_jogador, img): 
+    def __init__(self, direcao_jogador, img):
 
         pygame.sprite.Sprite.__init__(self)
 
@@ -116,14 +114,14 @@ class Balas(pygame.sprite.Sprite):
 
         # Vetor criado na posicao inicial da bala
         self.vetor = pygame.Vector2(self.rect.center)
-        
+
     def update(self):
         # Vetor da bala seguir com o sentido da nave
         self.vetor += self.direcao_bala
 
         # Atualiza a posicao da bala
         self.rect.center = self.vetor
-        
+
         # Apaga a bala se sair da tela
         self.vetor.x = self.vetor[0]
         self.vetor.y = self.vetor[1]
@@ -178,12 +176,12 @@ class Meteoros(pygame.sprite.Sprite):
         #atualiza a posicao do meteoro
         self.rect.x += self.speedx
         self.rect.y += self.speedy
-        
+
         #se o meteoro sair da tela, um novo meteoro aparece
         if self.rect.y > altura or self.rect.x < -l_meteoro or self.rect.x > largura or self.rect.y < -52:
             if self.numero == 1:
                 self.rect.x = random.randint(0, largura - l_meteoro)
-                self.rect.y = random.randint(altura, altura + a_meteoro) 
+                self.rect.y = random.randint(altura, altura + a_meteoro)
                 self.speedx = random.randint(-1, 1)
                 self.speedy = random.randint(-1, 1)
             elif self.numero == 2:
@@ -219,10 +217,10 @@ class Explosion(pygame.sprite.Sprite):
 
         self.explosion_anim = img
 
-        self.frame = 0  
-        self.image = self.explosion_anim[self.frame]  
+        self.frame = 0
+        self.image = self.explosion_anim[self.frame]
         self.rect = self.image.get_rect()
-        self.rect.center = center  
+        self.rect.center = center
 
         self.last_update = pygame.time.get_ticks()
 
@@ -253,7 +251,7 @@ todas_balas = pygame.sprite.Group()
 
 #adiciona o jogador nas sprites
 jogador = Jogador(nave_img)
-sprites.add(jogador) 
+sprites.add(jogador)
 
 #criando os meteoros e os adicionando no seu grupo
 for i in range(5):
@@ -280,7 +278,7 @@ while estado == "inicio":
     button4 = pygame.Rect(280, 580, 220, 50)
 
     #tempo inicial
-    tempo = 35
+    tempo = 0  # Tempo desde o começo do jogo
 
     #balas iniciais
     balass = 10
@@ -291,46 +289,60 @@ while estado == "inicio":
             pygame.quit()
         if evento.type == pygame.MOUSEBUTTONDOWN:
                 #posicao do mouse
-                mouse_posicao = evento.pos  
-                
+                mouse_posicao = evento.pos
+
                 #se o mouse clicar no botao
                 if button1.collidepoint(mouse_posicao):
                     botao_sound.play()
 
-                    #inicio da contagem       
-                    start_ticks=pygame.time.get_ticks()
+
 
                     #score inicial
                     score = 0
 
                     estado = "jogando"
 
-                    while estado == "jogando":
+                    gameover = 0
+
+                    m = 1
+                    #contagem do tempo
+                    start_ticks = pygame.time.get_ticks()  # Ticks desde o último frame
+
+                    #loop principal
+                    while estado == "jogando" and gameover != 2:
                         clock.tick(FPS)
                         #contagem do tempo
-                        seconds=int(tempo+(start_ticks-pygame.time.get_ticks())/1000)
+                        tempo += (pygame.time.get_ticks() - start_ticks) * m
+                        seconds = 35 - int(tempo / (1000))
+                        start_ticks=pygame.time.get_ticks()
 
                         #se o tempo acaba, Game Over
-                        if seconds == 0:
-                            
+                        if seconds <= 0:
+
                             # condicao para nao ter dois gameovers
                             gameover = 1
 
-                            #tela de game over por 3-4 segundos dps volta para a tela inicial
-                            while seconds != -3 and gameover == 1:
+                            tempo = 0
+                            seconds = 3
+
+                            #tela de game over por 3-4 segundos dps volta para a tela inicial (loop final)
+                            while seconds >= 0 and gameover == 1:
                                 #contagem do tempo
-                                seconds=int(tempo+(start_ticks-pygame.time.get_ticks())/1000)
-                               
+                                tempo += pygame.time.get_ticks() - start_ticks
+                                seconds = 3 - int(tempo / (1000))
+                                start_ticks=pygame.time.get_ticks()
+
                                 #cor da tela
                                 screen.fill((0, 0, 0))
-                                
+                                screen.blit(fundo2, (0, 0))
+
                                 #escreve GameOver
                                 texto = score_font6.render("Game over", True, (100, 255, 100))
                                 text_rect = texto.get_rect()
                                 text_rect = (160,  100)
                                 screen.blit(texto, text_rect)
 
-                                #escreve a pontuacao 
+                                #escreve a pontuacao
                                 texto = score_font2.render("Pontuacao:", True, (200, 255, 100))
                                 text_rect = texto.get_rect()
                                 text_rect = (270,  300)
@@ -344,21 +356,21 @@ while estado == "inicio":
                                 #substitui o score max
                                 if score > max_p:
                                     max_p = score
-                               
+
                                 for evento in pygame.event.get():
                                     if evento.type == pygame.QUIT:
                                         pygame.quit()
 
                                 pygame.display.update()
-                            
+
                             #reset nos meteoros
                             todos_meteoros.empty()
                             for i in range(5):
                                 todos_meteoros.add(Meteoros(meteoro_img))
-                            
+
                             #reset nas balas
                             todas_balas.empty()
-            
+
                             #volta para a tela inicial
                             estado = "inicio"
 
@@ -370,16 +382,17 @@ while estado == "inicio":
                                 if evento.key == pygame.K_SPACE and balass != 0:
                                     pew_sound.play()
                                     balas = Balas(jogador.direcao_jogador, bala_img)
-                                    todas_balas.add(balas)  
+                                    todas_balas.add(balas)
                                     balass -= 1
 
                                 #se as balas tiverem acabado, mas o jogo nao, o jogador pode alterar a velocidade do jogo para acabar mais rapido
                                 if evento.key == pygame.K_r and balass == 0:
                                     FPS = 60
-                                    
-                        
+                                    m = 2
+
+
                         #Game over se as balas acabarem e nao estiverem mais na tela
-                        if balass == 0:
+                        if balass == 0 and gameover != 1:
                             if len(todas_balas) == 0:
 
                                 #tela de game over por 2-3 segundos dps volta para a tela inicial
@@ -388,15 +401,20 @@ while estado == "inicio":
 
                                 #condicao para nao ter dois gameovers
                                 gameover = 2
+                                tempo = 0
+                                seconds = 3
 
-                                while seconds >= tempo - 3 and gameover == 2:
+                                #loop final
+                                while seconds >= 0 and gameover == 2:
                                     #contagem do tempo
-                                    seconds=int(tempo+(start_ticks-pygame.time.get_ticks())/1000)
-                                
+                                    tempo += pygame.time.get_ticks() - start_ticks
+                                    seconds = 3 - int(tempo / (1000))
+                                    start_ticks=pygame.time.get_ticks()
+
                                     #cor da tela
                                     screen.fill((0, 0, 0))
                                     screen.blit(fundo2, (0, 0))
-                                    
+
                                     #escreve GameOver
                                     texto = score_font6.render("Game over", True, (100, 255, 100))
                                     text_rect = texto.get_rect()
@@ -416,25 +434,25 @@ while estado == "inicio":
 
                                     #substitui o score maximo
                                     if score > max_p:
-                                        max_p = score                                      
+                                        max_p = score
 
                                     for evento in pygame.event.get():
                                         if evento.type == pygame.QUIT:
                                             pygame.quit()
 
-                                    pygame.display.update()                                 
-                            
+                                    pygame.display.update()
+
                                 #reset nos meteoros
                                 todos_meteoros.empty()
                                 for i in range(5):
                                     todos_meteoros.add(Meteoros(meteoro_img))
-                        
+
                                 #reset nas balas
                                 todas_balas.empty()
 
                                 #volta para a tela inicial
                                 estado = "inicio"
-                                
+
                         #enquanto a tecla estiver apertada o jogador gira
                         pressed = pygame.key.get_pressed()
                         if pressed[pygame.K_a]:
@@ -446,7 +464,7 @@ while estado == "inicio":
                         hits = pygame.sprite.groupcollide(todos_meteoros, todas_balas, True, True)
 
                         #quando um meteoro desaparece, um outro surge
-                        for i in hits: 
+                        for i in hits:
                             meteoros = Meteoros(meteoro_img)
                             todos_meteoros.add(meteoros)
 
@@ -458,14 +476,14 @@ while estado == "inicio":
                             #chama a animaçao de colisao
                             explosao = Explosion(i.rect.center, explosion_anim)
                             sprites.add(explosao)
-                            
+
 
                         #atualiza o jogo
                         sprites.update(nave_img)
                         todas_balas.update()
                         todos_meteoros.update()
 
-                        #cor de fundo 
+                        #cor de fundo
                         screen.fill((0, 0, 0))
                         screen.blit(fundo, (0, 0))
 
@@ -482,7 +500,7 @@ while estado == "inicio":
 
                         #mostra quantidade de balas
                         texto = score_font.render("Balas:{:02d}".format(balass), True, (0, 255, 255))
-                        text_rect = texto.get_rect() 
+                        text_rect = texto.get_rect()
                         text_rect.midtop = (largura - 100, altura-50)
                         screen.blit(texto, text_rect)
 
@@ -540,41 +558,41 @@ while estado == "inicio":
                         #escreve (somente possivel quando voce estiver sem
                         texto = score_font7.render("(somente possivel quando estiver sem", True,(255,100,100))
                         text_rect = texto.get_rect()
-                        text_rect.midtop = (530, 640) 
+                        text_rect.midtop = (530, 640)
                         screen.blit(texto, text_rect)
 
                         #escreve balas)
                         texto = score_font7.render("balas)", True, (255,100,100))
                         text_rect = texto.get_rect()
-                        text_rect.midtop = (720, 660) 
+                        text_rect.midtop = (720, 660)
                         screen.blit(texto, text_rect)
 
                         #escreve A
-                        texto = score_font3.render("A", True, (255,100,100))
+                        texto = score_font3.render("A", True, (255,100,255))
                         text_rect = texto.get_rect()
-                        text_rect.midtop = (200, 380) 
+                        text_rect.midtop = (200, 380)
                         screen.blit(texto, text_rect)
 
                         #escreve D
-                        texto = score_font3.render("D", True, (255,100,100))
+                        texto = score_font3.render("D", True, (255,100,255))
                         text_rect = texto.get_rect()
-                        text_rect.midtop = (200, 280) 
+                        text_rect.midtop = (200, 280)
                         screen.blit(texto, text_rect)
 
                         #escreve SPACE
-                        texto = score_font3.render("SPACE", True, (255,100,100))
+                        texto = score_font3.render("SPACE", True, (255,100,255))
                         text_rect = texto.get_rect()
-                        text_rect.midtop = (200, 480) 
+                        text_rect.midtop = (200, 480)
                         screen.blit(texto, text_rect)
 
                         #escreve R
-                        texto = score_font3.render("R", True, (255,100,100))
+                        texto = score_font3.render("R", True,(255,100,255))
                         text_rect = texto.get_rect()
-                        text_rect.midtop = (200,580) 
+                        text_rect.midtop = (200,580)
                         screen.blit(texto, text_rect)
 
                         #escreve (somente possivel quando voce estiver sem balas)
-                        texto = score_font7.render("Acerte o maximo de meteoros que conseguir em {0} segundos e com {1} balas!".format(tempo,balass), True, (255,100,100))
+                        texto = score_font7.render("Acerte o maximo de meteoros que conseguir em 35 segundos e com {0} balas!".format(balass), True, (255,50,100))
                         text_rect = texto.get_rect()
                         text_rect.midtop = (375, 200)
                         screen.blit(texto, text_rect)
@@ -596,7 +614,7 @@ while estado == "inicio":
                                 pygame.quit()
                             if evento.type == pygame.MOUSEBUTTONDOWN:
                                     #posicao do mouse
-                                    mouse_posicao = evento.pos  
+                                    mouse_posicao = evento.pos
 
                                     if button3.collidepoint(mouse_posicao):
                                         botao_sound.play()
@@ -611,7 +629,7 @@ while estado == "inicio":
                     estado = "creditos"
 
                     while estado == "creditos":
-                        
+
                         #escreve creditos
                         texto = score_font3.render("Creditos", True, (100, 255, 100))
                         text_rect = texto.get_rect()
@@ -663,7 +681,7 @@ while estado == "inicio":
                         text_rect = texto.get_rect()
                         text_rect.midtop = (600, 250)
                         screen.blit(texto, text_rect)
- 
+
                         pygame.display.update()
 
                         for evento in pygame.event.get():
@@ -671,7 +689,7 @@ while estado == "inicio":
                                 pygame.quit()
                             if evento.type == pygame.MOUSEBUTTONDOWN:
                                     #posicao do mouse
-                                    mouse_posicao = evento.pos  
+                                    mouse_posicao = evento.pos
 
                                     if button5.collidepoint(mouse_posicao):
                                         botao_sound.play()
