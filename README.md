@@ -14,6 +14,9 @@
 
 # APERTE PLAY PARA EXECUTAR O JOGO
 
+# Link para o video
+# https://www.youtube.com/watch?v=i58Hx_YOBv4&feature=youtu.be
+
 # Referencias:
 # opengameart.org
 #   musica - remaxim
