@@ -15,7 +15,7 @@
 # APERTE PLAY PARA EXECUTAR O JOGO
 
 # Link para o video
-# https://www.youtube.com/watch?v=i58Hx_YOBv4&feature=youtu.be
+# https://web.microsoftstream.com/video/29440e40-23d3-49b4-9607-1d541cdd4a52
 
 # Referencias:
 # opengameart.org
