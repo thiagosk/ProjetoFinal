@@ -6,6 +6,8 @@ import time
 pygame.init()
 pygame.mixer.init()
 
+
+
 #cria o tamanho da tela de display
 largura = 750
 altura = 750
@@ -116,19 +118,24 @@ class Balas(pygame.sprite.Sprite):
         self.vetor = pygame.Vector2(self.rect.center)
 
     def update(self):
-        # Vetor da bala seguir com o sentido da nave
-        self.vetor += self.direcao_bala
+        def posicao(self):
+            # Vetor da bala seguir com o sentido da nave
+            self.vetor += self.direcao_bala
 
-        # Atualiza a posicao da bala
-        self.rect.center = self.vetor
+            # Atualiza a posicao da bala
+            self.rect.center = self.vetor
 
-        # Apaga a bala se sair da tela
-        self.vetor.x = self.vetor[0]
-        self.vetor.y = self.vetor[1]
-        if self.vetor.x > largura or self.vetor.x < 0:
-            self.kill()
-        elif self.vetor.y > altura or self.vetor.y < 0:
-            self.kill()
+        def apaga(self):
+            # Apaga a bala se sair da tela
+            self.vetor.x = self.vetor[0]
+            self.vetor.y = self.vetor[1]
+            if self.vetor.x > largura or self.vetor.x < 0:
+                self.kill()
+            elif self.vetor.y > altura or self.vetor.y < 0:
+                self.kill()
+        
+        posicao(self)
+        apaga(self)
 
 
 class Meteoros(pygame.sprite.Sprite):
@@ -327,6 +334,11 @@ while estado == "inicio":
 
                             #tela de game over por 3-4 segundos dps volta para a tela inicial (loop final)
                             while seconds >= 0 and gameover == 1:
+                                def texto(fonte, frase, cor, posicao):
+                                    texto = fonte.render(frase, True, cor)
+                                    text_rect = posicao
+                                    screen.blit(texto, text_rect)
+                                
                                 #contagem do tempo
                                 tempo += pygame.time.get_ticks() - start_ticks
                                 seconds = 3 - int(tempo / (1000))
@@ -335,23 +347,17 @@ while estado == "inicio":
                                 #cor da tela
                                 screen.fill((0, 0, 0))
                                 screen.blit(fundo2, (0, 0))
+                                
 
                                 #escreve GameOver
-                                texto = score_font6.render("Game over", True, (100, 255, 100))
-                                text_rect = texto.get_rect()
-                                text_rect = (160,  100)
-                                screen.blit(texto, text_rect)
+                                print(texto(score_font6, "Game over", (100, 255, 100), (160,  100)))
 
                                 #escreve a pontuacao
-                                texto = score_font2.render("Pontuacao:", True, (200, 255, 100))
-                                text_rect = texto.get_rect()
-                                text_rect = (270,  300)
-                                screen.blit(texto, text_rect)
+                                print(texto(score_font2, "Pontuacao:", (200, 255, 100), (270,  300)))
 
-                                texto = score_font2.render("{0}".format(score), True, (200, 255, 100))
-                                text_rect = texto.get_rect()
-                                text_rect = (350,  365)
-                                screen.blit(texto, text_rect)
+                                #escrever a pontuação
+                                texto(score_font2, "{0}".format(score), (200, 255, 100), (350,  365))
+
 
                                 #substitui o score max
                                 if score > max_p:
@@ -420,12 +426,14 @@ while estado == "inicio":
                                     text_rect = texto.get_rect()
                                     text_rect = (160,  100)
                                     screen.blit(texto, text_rect)
+                                    
 
                                     #escreve a pontuacao
                                     texto = score_font2.render("Pontuacao:", True, (200, 255, 100))
                                     text_rect = texto.get_rect()
                                     text_rect = (270,  300)
                                     screen.blit(texto, text_rect)
+                                    
 
                                     texto = score_font2.render("{0}".format(score), True, (200, 255, 100))
                                     text_rect = texto.get_rect()
