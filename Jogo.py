@@ -118,19 +118,24 @@ class Balas(pygame.sprite.Sprite):
         self.vetor = pygame.Vector2(self.rect.center)
 
     def update(self):
-        # Vetor da bala seguir com o sentido da nave
-        self.vetor += self.direcao_bala
+        def posicao(self):
+            # Vetor da bala seguir com o sentido da nave
+            self.vetor += self.direcao_bala
 
-        # Atualiza a posicao da bala
-        self.rect.center = self.vetor
+            # Atualiza a posicao da bala
+            self.rect.center = self.vetor
 
-        # Apaga a bala se sair da tela
-        self.vetor.x = self.vetor[0]
-        self.vetor.y = self.vetor[1]
-        if self.vetor.x > largura or self.vetor.x < 0:
-            self.kill()
-        elif self.vetor.y > altura or self.vetor.y < 0:
-            self.kill()
+        def apaga(self):
+            # Apaga a bala se sair da tela
+            self.vetor.x = self.vetor[0]
+            self.vetor.y = self.vetor[1]
+            if self.vetor.x > largura or self.vetor.x < 0:
+                self.kill()
+            elif self.vetor.y > altura or self.vetor.y < 0:
+                self.kill()
+        
+        posicao(self)
+        apaga(self)
 
 
 class Meteoros(pygame.sprite.Sprite):
